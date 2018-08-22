@@ -19,12 +19,29 @@
     <div id="app">
         <div class="header">
             <h1>Vue.js Poster Store</h1>
+            <form class="searchbar" v-on:submit.prevent="onSubmit">
+                <input v-model="newSearch" placeholder="Search">
+                <input type="submit" value="Search">
+            </form>
         </div>
         <div class="main">
             <div class="products">
+                <div class="search-results" v-if="loading">
+                    loading...
+                </div>
+                <div class="search-results" v-else>
+                    Found {{items.length }} result for search term {{ lastSearch }}.
+                </div>
+
                 <div class="product" v-for="(item, index) in items">
-                    <h4 class="product-title">{{item.title}}</h4>
-                    <button v-on:click="addItem(index)" class="add-to-cart">Add to cart</button>
+                    <div class="product-image">
+                        <img :src="item.link">
+                    </div>
+                    <div>
+                        <h4 class="product-title">{{item.title}}</h4>
+                        <button v-on:click="addItem(index)" class="add-to-cart btn">Add to cart</button>
+                    </div>
+
                 </div>
             </div>
             <div class="cart">
@@ -33,12 +50,15 @@
                     <ul>
                         <li class="cart-item" v-for="item in cart">
                             <div class="item-title">
-                                    {{item.title}}
+                                {{item.title}}
                             </div>
+                            <span class="item-qty">{{item.price | currency}} x {{item.qty}}</span>
+                            <button class="btn" v-on:click="inc(item)">+</button>
+                            <button class="btn" v-on:click="dec(item)">-</button>
                         </li>
                     </ul>
                     <div v-if="cart.length">
-                        Total: R$ {{ total }}
+                        Total: R$ {{ total | currency}}
                     </div>
                     <div v-else class="empty-cart">No items in the cart.</div>
                 </div>
@@ -49,6 +69,7 @@
     <!-- Scripts -->
     <script src="/reload/reload.js"></script>
     <script src="./node_modules/vue/dist/vue.min.js"></script>
+    <script src="./node_modules/vue-resource/dist/vue-resource.min.js"></script>
     <script type="text/javascript" src="public/script.js"></script>
 
 </body>
