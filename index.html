@@ -26,12 +26,15 @@
         </div>
         <div class="main">
             <div class="products">
-                <div class="search-results" v-if="loading">
+                <div class="search-results" v-if="loading && !errorMsg">
                     loading...
                 </div>
                 <div class="search-results" v-else>
                     Found {{items.length }} result for search term {{ lastSearch }}.
                 </div>
+                <div v-if="errorMsg">
+                       !! Não foi realizar a busca.
+                    </div>
 
                 <div class="product" v-for="(item, index) in items">
                     <div class="product-image">
@@ -39,6 +42,7 @@
                     </div>
                     <div>
                         <h4 class="product-title">{{item.title}}</h4>
+                        <p>Price: <strong>{{price | currency}}</strong></p>
                         <button v-on:click="addItem(index)" class="add-to-cart btn">Add to cart</button>
                     </div>
 

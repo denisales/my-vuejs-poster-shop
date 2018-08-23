@@ -8,9 +8,11 @@ new Vue({
         total: 0,
         items: [],
         cart: [],
-        newSearch: '',
+        newSearch: 'anime',
         lastSearch: '',
-        loading: false
+        loading: false,
+        errorMsg: false,
+        price: PRICE
 
     },
     methods: {
@@ -23,7 +25,10 @@ new Vue({
                     this.items = res.data;
                     this.loading = false;
                     this.lastSearch = this.newSearch;
-                    this.newSearch = '';
+                    // this.newSearch = '';
+                })
+                .catch(function(err){
+                    this.errorMsg = true
                 })
         },
         addItem(index){
@@ -70,5 +75,8 @@ new Vue({
         currency: function(price){
             return '$'.concat(price.toFixed(2))
         }
+    },
+    mounted(){
+        this.onSubmit();
     }
 })
