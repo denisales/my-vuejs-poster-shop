@@ -10,44 +10,57 @@ new Vue({
         items: [],
         cart: [],
         results: [],
-        newSearch: 'anime',
+        newSearch: '90s',
         lastSearch: '',
         loading: false,
         errorMsg: false,
-        price: PRICE
+        price: PRICE,
 
     },
+    computed: {
+        noMoreItems() {
+            return this.items.length === this.results.length && this.results.length > 0
+        }
+    },
     methods: {
-        onSubmit(){
-            this.items = [];
-            this.loading = true;
-            this.$http
-                .get('/search/'.concat(this.newSearch))
-                .then(function(res){
-                    this.results = res.data;
-                    this.items = res.data.slice(0, 10);
-                    this.loading = false;
-                    this.lastSearch = this.newSearch;
-                    // this.newSearch = '';
-                })
-                .catch(function(err){
-                    this.errorMsg = true
-                })
+        appendItems() {
+            if (this.items.length < this.results.length) {
+                var append = this.results.slice(this.items.length, this.items.length + LOAD_NUM);
+                this.items = this.items.concat(append)
+            }
         },
-        addItem(index){
+        onSubmit() {
+            if (this.newSearch.length) {
+                this.items = [];
+                this.loading = true;
+                this.$http
+                    .get('/search/'.concat(this.newSearch))
+                    .then(function (res) {
+                        this.results = res.data;
+                        this.appendItems();
+                        this.loading = false;
+                        this.lastSearch = this.newSearch;
+                    })
+                    .catch(function (err) {
+                        this.errorMsg = true
+                    })
+            }
+
+        },
+        addItem(index) {
             this.total += PRICE;
             // this.cart.push(this.items[index])
             var item = this.items[index];
             var found = false;
-            for(var i = 0; i < this.cart.length; i++){
-                if(this.cart[i].id == item.id){
+            for (var i = 0; i < this.cart.length; i++) {
+                if (this.cart[i].id == item.id) {
                     found = true
                     this.cart[i].qty++;
                     break;
                 }
             }
 
-            if(!found){
+            if (!found) {
                 this.cart.push({
                     id: item.id,
                     title: item.title,
@@ -55,18 +68,18 @@ new Vue({
                     price: PRICE
                 })
             }
-         
+
         },
-        inc(item){
+        inc(item) {
             item.qty++;
             this.total += PRICE;
         },
-        dec(item){
+        dec(item) {
             item.qty--;
             this.total -= PRICE;
-            if(item.qty <= 0){
-                for(var i = 0; i < this.cart.length; i++){
-                    if(this.cart[i].id === item.id){
+            if (item.qty <= 0) {
+                for (var i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i].id === item.id) {
                         this.cart.splice(i, 1)
                         break;
                     }
@@ -75,11 +88,18 @@ new Vue({
         }
     },
     filters: {
-        currency: function(price){
+        currency: function (price) {
             return '$'.concat(price.toFixed(2))
         }
     },
-    mounted(){
+    mounted() {
         this.onSubmit();
+        var vueInstance = this;
+        var elem = document.getElementById('product-list-bottom')
+        var watcher = scrollMonitor.create(elem)
+        watcher.enterViewport(function () {
+            vueInstance.appendItems();
+        })
     }
 })
+
