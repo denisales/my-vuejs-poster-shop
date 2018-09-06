@@ -1,6 +1,10 @@
 var PRICE = 9.99;
 var LOAD_NUM = 10;
 
+var pusher = new Pusher('eaf6d2effa2f1aa8e94b', {
+    cluster: 'ap1',
+    encrypted: true
+})
 
 
 new Vue({
@@ -20,6 +24,14 @@ new Vue({
     computed: {
         noMoreItems() {
             return this.items.length === this.results.length && this.results.length > 0
+        }
+    },
+    watch: {
+        cart: {
+            handler(val, ){
+                this.$http.post('/cart_update', val)
+            },
+            deep: true
         }
     },
     methods: {
@@ -100,6 +112,10 @@ new Vue({
         watcher.enterViewport(function () {
             vueInstance.appendItems();
         })
-    }
+        var channel = pusher.subscribe('cart')
+        channel.bind('update', function(data){
+            console.log(data)
+        })
+    },
 })
 
